@@ -53,7 +53,7 @@ namespace DynamicEncryptionWithAES
             // Used the chached credentials to create CloudMediaContext.
             _context = new CloudMediaContext(_cachedCredentials);
 
-            bool tokenRestriction = false;
+            bool tokenRestriction = true;
             string tokenTemplateString = null;
 
             IAsset asset = UploadFileAndCreateAsset(_singleMP4File);
@@ -92,7 +92,8 @@ namespace DynamicEncryptionWithAES
 
                 //The GenerateTestToken method returns the token without the word “Bearer” in front
                 //so you have to add it in front of the token string. 
-                string testToken = TokenRestrictionTemplateSerializer.GenerateTestToken(tokenTemplate, null, rawkey);
+                string testToken = TokenRestrictionTemplateSerializer.GenerateTestToken(tokenTemplate, null, rawkey, DateTime.UtcNow.AddDays(365));
+
                 Console.WriteLine("The authorization token is:\nBearer {0}", testToken);
                 Console.WriteLine();
             }
@@ -298,7 +299,7 @@ namespace DynamicEncryptionWithAES
                 _context.AssetDeliveryPolicies.Create(
                             "AssetDeliveryPolicy",
                             AssetDeliveryPolicyType.DynamicEnvelopeEncryption,
-                            AssetDeliveryProtocol.SmoothStreaming | AssetDeliveryProtocol.HLS,
+                            AssetDeliveryProtocol.SmoothStreaming | AssetDeliveryProtocol.HLS | AssetDeliveryProtocol.Dash,
                             assetDeliveryPolicyConfiguration);
 
             // Add AssetDelivery Policy to the asset
