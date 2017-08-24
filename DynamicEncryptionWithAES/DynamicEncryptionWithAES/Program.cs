@@ -3,27 +3,21 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.WindowsAzure.MediaServices.Client;
-using Newtonsoft.Json.Linq;
 using System.Threading;
 using Microsoft.WindowsAzure.MediaServices.Client.ContentKeyAuthorization;
 using Microsoft.WindowsAzure.MediaServices.Client.DynamicEncryption;
-using System.Web;
-using System.Globalization;
 
 namespace DynamicEncryptionWithAES
 {
     class Program
     {
         // Read values from the App.config file.
-        private static readonly string _mediaServicesAccountName =
-            ConfigurationManager.AppSettings["MediaServicesAccountName"];
-        private static readonly string _mediaServicesAccountKey =
-            ConfigurationManager.AppSettings["MediaServicesAccountKey"];
+        static string _AADTenantDomain =
+            ConfigurationManager.AppSettings["AMSAADTenantDomain"];
+        static string _RESTAPIEndpoint =
+            ConfigurationManager.AppSettings["AMSRESTAPIEndpoint"];
 
         // A Uri describing the issuer of the token.  
         // Must match the value in the token for the token to be considered valid.
@@ -36,7 +30,6 @@ namespace DynamicEncryptionWithAES
 
         // Field for service context.
         private static CloudMediaContext _context = null;
-        private static MediaServicesCredentials _cachedCredentials = null;
 
         private static readonly string _mediaFiles =
             Path.GetFullPath(@"../..\Media");
@@ -46,12 +39,10 @@ namespace DynamicEncryptionWithAES
 
         static void Main(string[] args)
         {
-            // Create and cache the Media Services credentials in a static class variable.
-            _cachedCredentials = new MediaServicesCredentials(
-                            _mediaServicesAccountName,
-                            _mediaServicesAccountKey);
-            // Used the chached credentials to create CloudMediaContext.
-            _context = new CloudMediaContext(_cachedCredentials);
+            AzureAdTokenCredentials tokenCredentials = new AzureAdTokenCredentials(_AADTenantDomain, AzureEnvironments.AzureCloudEnvironment);
+            AzureAdTokenProvider tokenProvider = new AzureAdTokenProvider(tokenCredentials);
+
+            _context = new CloudMediaContext(new Uri(_RESTAPIEndpoint), tokenProvider);
 
             bool tokenRestriction = true;
             string tokenTemplateString = null;
