@@ -12,8 +12,7 @@ The sample shows how to use Azure Media Services to dynamically encrypt your con
 
 To run this sample you will need:
 
-- Visual Studio 2013 or 2015
-- An Internet connection
+- Visual Studio 
 - An Azure subscription
 
 ### Step 1:  Clone or download this repository
